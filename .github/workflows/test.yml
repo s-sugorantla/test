@@ -22,9 +22,11 @@ jobs:
 
       - name: Set up AWS credentials
         run: |
-          aws configure set aws_access_key_id ${{ secrets.aws_access_key_id }}
-          aws configure set aws_secret_access_key ${{ secrets.aws_secret_access_key }}
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.aws_access_key_id }}" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.aws_secret_access_key }}" >> $GITHUB_ENV
 
       - name: List S3 Buckets
         run: |
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
           aws s3 ls
