@@ -9,7 +9,7 @@ on:
         required: true
         options:
           - test
-          - app
+      
 jobs:
   upload:
     runs-on: ubuntu-latest
@@ -19,19 +19,19 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Users
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: arn:aws:iam::474077751287:role/github
           role-session-name: samplerolesession
           aws-region: us-east-1
 
-      - name: Run Prowler and generate HTML report
-        run: |
-          git clone https://github.com/prowler-cloud/prowler
-          cd prowler
-          poetry shell
-          poetry install
-          python prowler.py aws --profile default -f us-east-1 -M html
-      - name: Upload HTML report to S3 bucket
-        run: |
-          aws s3 cp prowler-report-${{ github.sha }}.html s3://test-sur/
+#       - name: Run Prowler and generate HTML report
+#         run: |
+#           git clone https://github.com/prowler-cloud/prowler
+#           cd prowler
+#           poetry shell
+#           poetry install
+#           python prowler.py aws --profile default -f us-east-1 -M html
+#       - name: Upload HTML report to S3 bucket
+#         run: |
+#           aws s3 cp prowler-report-${{ github.sha }}.html s3://test-sur/
