@@ -1,32 +1,34 @@
+name: Upload Prowler HTML Report
+
 on:
   schedule:
-    - cron: "0 9 * * 1-5" 
-    - cron: "0 9 * * 6" 
+    - cron: "0 9 * * 1-5"  # Trigger daily at 9 AM
+    - cron: "0 9 * * 6"    # Trigger weekly on Saturday at 9 AM
 
 jobs:
-  prowler:
+  upload:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Configure AWS credentials
+        run: |
+          echo ${{ secrets.AWS_ACCESS_KEY_ID }} >> ~/.aws/credentials
+          echo ${{ secrets.AWS_SECRET_ACCESS_KEY }} >> ~/.aws/credentials
+          echo "[default]" >> ~/.aws/config
+          echo "region=${{ secrets.AWS_DEFAULT_REGION }}" >> ~/.aws/config
+
       - name: Run Prowler and generate HTML report
         run: |
-          prowler -R -B html
+          docker run --rm -v $PWD:/prowler-report aquasec/prowler:latest -R -B html
           mv prowler-report.html prowler-report-${{ github.sha }}.html
 
-      - name: Assume IAM Role
-        id: assume-role
+      - name: Install AWS CLI
         run: |
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws configure set default.region ${{ secrets.AWS_DEFAULT_REGION }}
-          export AWS_SESSION_TOKEN=$(aws sts assume-role --role-arn <IAM_ROLE_ARN> --role-session-name prowler-session --query 'Credentials.SessionToken' --output text)
-          export AWS_ACCESS_KEY_ID=$(aws sts assume-role --role-arn <IAM_ROLE_ARN> --role-session-name prowler-session --query 'Credentials.AccessKeyId' --output text)
-          export AWS_SECRET_ACCESS_KEY=$(aws sts assume-role --role-arn <IAM_ROLE_ARN> --role-session-name prowler-session --query 'Credentials.SecretAccessKey' --output text)
+          sudo apt-get install -y awscli
 
       - name: Upload HTML report to S3 bucket
         run: |
           aws s3 cp prowler-report-${{ github.sha }}.html s3://<bucket_name>/<path_in_bucket>/
-
