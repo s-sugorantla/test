@@ -1,10 +1,15 @@
 name: Upload Prowler HTML Report
 
 on:
-  schedule:
-    - cron: "0 9 * * 1-5"  # Trigger daily at 9 AM
-    - cron: "0 9 * * 6"    # Trigger weekly on Saturday at 9 AM
-
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Environment
+        required: true
+        options:
+          - test
+          - app
 jobs:
   upload:
     runs-on: ubuntu-latest
