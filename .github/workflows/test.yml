@@ -22,13 +22,11 @@ jobs:
 
       - name: Run Prowler and generate HTML report
         run: |
-          docker run --rm -v $PWD:/prowler-report aquasec/prowler:latest -R -B html
-          mv prowler-report.html prowler-report-${{ github.sha }}.html
-
-      - name: Install AWS CLI
-        run: |
-          sudo apt-get install -y awscli
-
+          git clone https://github.com/prowler-cloud/prowler
+          cd prowler
+          poetry shell
+          poetry install
+          python prowler.py aws --profile default -f us-east-1 -M html
       - name: Upload HTML report to S3 bucket
         run: |
-          aws s3 cp prowler-report-${{ github.sha }}.html s3://<bucket_name>/<path_in_bucket>/
+          aws s3 cp prowler-report-${{ github.sha }}.html s3://test-sur/
