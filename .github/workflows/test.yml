@@ -18,12 +18,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Configure AWS credentials
-        run: |
-          echo ${{ secrets.AWS_ACCESS_KEY_ID }} >> ~/.aws/credentials
-          echo ${{ secrets.AWS_SECRET_ACCESS_KEY }} >> ~/.aws/credentials
-          echo "[default]" >> ~/.aws/config
-          echo "region=${{ secrets.AWS_DEFAULT_REGION }}" >> ~/.aws/config
+      - name: Users
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::474077751287:role/github
+          role-session-name: samplerolesession
+          aws-region: us-east-1
 
       - name: Run Prowler and generate HTML report
         run: |
