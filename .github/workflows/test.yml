@@ -23,7 +23,7 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::474077751287:role/github
           role-session-name: samplerolesession
-          aws-region: us-east-1
+          aws-region: us-east-2
 
       - name: Run Prowler and generate HTML report
         run: |
